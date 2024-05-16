@@ -1,0 +1,16 @@
+{
+  "name": "url-shortening-api-vercel",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@vercel/edge-config": "^1.1.0",
+    "pg": "^8.11.5"
+  }
+}

@@ -1,0 +1,23 @@
+CREATE TABLE urls (
+  id SERIAL PRIMARY KEY,
+  short_id VARCHAR(6) UNIQUE NOT NULL,
+  long_url TEXT NOT NULL
+);
+
+CREATE TABLE ip_addresses (
+  id SERIAL PRIMARY KEY,
+  ip_address VARCHAR(45) UNIQUE NOT NULL
+);
+
+CREATE TABLE hostnames (
+  id SERIAL PRIMARY KEY,
+  hostname VARCHAR(255) UNIQUE NOT NULL
+);
+
+CREATE TABLE clicks (
+  id SERIAL PRIMARY KEY,
+  url_id INTEGER REFERENCES urls(id),
+  ip_id INTEGER REFERENCES ip_addresses(id),
+  hostname_id INTEGER REFERENCES hostnames(id),
+  timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);

@@ -1,0 +1,11 @@
+{
+  "version": 2,
+  "functions": {
+    "api/shorten.ts": {
+      "runtime": "edge"
+    },
+    "api/redirect.ts": {
+      "runtime": "edge"
+    }
+  }
+}
