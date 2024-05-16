@@ -1,10 +1,12 @@
-import { VercelRequest, VercelResponse } from "@vercel/node";
-import { generateShortId, saveUrl } from "../utils";
-import { setUrl } from "../edge-config";
+const { VercelRequest, VercelResponse } = require("@vercel/node");
+const { config: loadEnvConfig } = require("dotenv");
+loadEnvConfig();
+const { kv } = require("@vercel/kv");
+const { generateShortId, saveUrl } = require("../utils/index.js");
 
 const urlBase = process.env.URLSHORT_URL_BASE || "/";
 
-export default async function handler(req: VercelRequest, res: VercelResponse) {
+export async function handler(req, res) {
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Method not allowed" });
   }
@@ -15,8 +17,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   const shortId = generateShortId();
-  await setUrl(shortId, url);
+  await kv.set(`url:${shortId}`, url);
   await saveUrl(shortId, url, userId);
 
   return res.status(200).json({ shortUrl: `${urlBase}${shortId}` });
 }
+
+module.exports = handler;
+module.exports.runtime = runtime;

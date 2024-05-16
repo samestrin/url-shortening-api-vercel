@@ -1,29 +1,21 @@
 {
   "version": 2,
   "functions": {
-    "api/shorten.ts": {
-      "runtime": "edge@latest"
+    "api/shorten.js": {
+      "maxDuration": 60
     },
-    "api/redirect.ts": {
-      "runtime": "edge@latest"
+    "api/redirect.js": {
+      "maxDuration": 60
     }
   },
   "routes": [
     {
       "src": "/shorten",
-      "dest": "/api/shorten.ts"
-    },
-    {
-      "src": "/assets/(.*)/(.*)",
-      "dest": "/demo/assets/$1/$2"
-    },
-    {
-      "src": "/",
-      "dest": "/demo/index.html"
+      "dest": "/api/shorten.js"
     },
     {
       "src": "/(.*)",
-      "dest": "/api/redirect/$1"
+      "dest": "/api/redirect.js"
     }
   ]
 }

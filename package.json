@@ -4,13 +4,25 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "vercel dev"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@vercel/edge-config": "^1.1.0",
-    "@vercel/postgres": "^0.8.0"
+    "@vercel/edge": "^1.1.1",
+    "@vercel/kv": "^1.0.1",
+    "@vercel/node": "^3.1.5",
+    "@vercel/postgres": "^0.8.0",
+    "dotenv": "^16.4.5",
+    "fs": "^0.0.1-security",
+    "node-fetch": "^3.3.2",
+    "path": "^0.12.7",
+    "pg": "^8.11.5",
+    "url": "^0.11.3"
+  },
+  "devDependencies": {
+    "typescript": "^5.4.5"
   }
 }
