@@ -1,8 +1,15 @@
 import { nanoid } from "nanoid";
-import { Client } from "pg";
+import { Client } from "@vercel/postgres";
+import { Resolver } from "dns/promises";
+
+const urlBase = process.env.URLSHORT_URL_BASE || "/";
+const trackClicks = process.env.URLSHORT_TRACK_CLICKS === "true";
+const resolveHostname = process.env.URLSHORT_RESOLVE_HOSTNAME === "true";
+const defaultIpAddressId = process.env.URLSHORT_DEFAULT_IP_ADDRESS_ID || 1;
+const defaultHostnameId = process.env.URLSHORT_DEFAULT_HOSTNAME_ID || 1;
 
 export function generateShortId(): string {
-  return nanoid(7);
+  return nanoid(6);
 }
 
 async function getOrInsert(
@@ -27,10 +34,12 @@ async function getOrInsert(
 }
 
 export async function logRedirect(
-  shortId: string,
+  shortUrl: string,
   ip: string,
   hostname: string
 ): Promise<void> {
+  if (!trackClicks) return;
+
   const client = new Client({
     connectionString: process.env.POSTGRES_URL,
     ssl: { rejectUnauthorized: false },
@@ -38,8 +47,8 @@ export async function logRedirect(
   await client.connect();
 
   const urlResult = await client.query(
-    "SELECT id FROM urls WHERE short_id = $1",
-    [shortId]
+    "SELECT id FROM urls WHERE short_url = $1",
+    [shortUrl]
   );
   if (urlResult.rows.length === 0) {
     await client.end();
@@ -47,33 +56,49 @@ export async function logRedirect(
   }
   const urlId = urlResult.rows[0].id;
 
-  const ipId = await getOrInsert("ip_addresses", "ip_address", ip, client);
-  const hostnameId = await getOrInsert(
-    "hostnames",
-    "hostname",
-    hostname,
-    client
-  );
+  let ipId = defaultIpAddressId;
+  if (ip) {
+    ipId = await getOrInsert("ip_addresses", "address", ip, client);
+  }
+
+  if (resolveHostname && (!hostname || /^[0-9.]+$/.test(hostname))) {
+    try {
+      const resolver = new Resolver();
+      const [resolvedHostname] = await resolver.reverse(ip);
+      hostname = resolvedHostname || "unknown";
+    } catch {
+      hostname = "unknown";
+    }
+  }
+
+  let hostnameId = defaultHostnameId;
+  if (hostname) {
+    hostnameId = await getOrInsert("hostnames", "name", hostname, client);
+  }
 
   await client.query(
-    "INSERT INTO clicks (url_id, ip_id, hostname_id, timestamp) VALUES ($1, $2, $3, NOW())",
+    "INSERT INTO clicks (url_id, ip_address_id, hostname_id, clicked_at) VALUES ($1, $2, $3, NOW())",
     [urlId, ipId, hostnameId]
   );
 
   await client.end();
 }
 
-export async function saveUrl(shortId: string, longUrl: string): Promise<void> {
+export async function saveUrl(
+  shortUrl: string,
+  longUrl: string,
+  userId: number
+): Promise<void> {
   const client = new Client({
     connectionString: process.env.POSTGRES_URL,
     ssl: { rejectUnauthorized: false },
   });
   await client.connect();
 
-  await client.query("INSERT INTO urls (short_id, long_url) VALUES ($1, $2)", [
-    shortId,
-    longUrl,
-  ]);
+  await client.query(
+    "INSERT INTO urls (short_url, long_url, user_id) VALUES ($1, $2, $3)",
+    [shortUrl, longUrl, userId]
+  );
 
   await client.end();
 }

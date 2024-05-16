@@ -7,5 +7,23 @@
     "api/redirect.ts": {
       "runtime": "edge"
     }
-  }
+  },
+  "routes": [
+    {
+      "src": "/shorten",
+      "dest": "/api/shorten.ts"
+    },
+    {
+      "src": "/assets/(.*)/(.*)",
+      "dest": "/demo/assets/$1/$2"
+    },
+    {
+      "src": "/",
+      "dest": "/demo/index.html"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/api/redirect/$1"
+    }
+  ]
 }

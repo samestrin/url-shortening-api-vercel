@@ -15,8 +15,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(404).json({ error: "URL not found" });
   }
 
-  const ip = req.headers["x-forwarded-for"] || req.connection.remoteAddress;
-  const hostname = req.headers.host;
+  const ip =
+    req.headers["x-forwarded-for"] || req.connection.remoteAddress || "unknown";
+  const hostname = req.headers.host || "unknown";
 
   await logRedirect(shortId, ip as string, hostname);
 
