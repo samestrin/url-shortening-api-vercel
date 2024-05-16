@@ -2,10 +2,10 @@
   "version": 2,
   "functions": {
     "api/shorten.ts": {
-      "runtime": "edge"
+      "runtime": "edge@latest"
     },
     "api/redirect.ts": {
-      "runtime": "edge"
+      "runtime": "edge@latest"
     }
   },
   "routes": [
