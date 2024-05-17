@@ -85,20 +85,54 @@ async function resolveHostnameFromIp(ip) {
   return "unknown";
 }
 
-async function getOrInsert(table, column, value, client) {
-  const result = await client.query(
-    `SELECT id FROM ${table} WHERE ${column} = $1`,
-    [value]
-  );
-  if (result.rows.length > 0) {
-    return result.rows[0].id;
-  } else {
-    const insertResult = await client.query(
-      `INSERT INTO ${table} (${column}) VALUES ($1) RETURNING id`,
+async function getOrInsert(table, column, value) {
+  const key = `${table}:${column}:${value}`;
+  const cachedValue = await fetchFromCache(key, async () => {
+    const client = new Client({
+      connectionString: process.env.POSTGRES_URL,
+      ssl: { rejectUnauthorized: false },
+    });
+    await client.connect();
+
+    const result = await client.query(
+      `SELECT id FROM ${table} WHERE ${column} = $1`,
       [value]
     );
-    return insertResult.rows[0].id;
+
+    let id;
+    if (result.rows.length > 0) {
+      id = result.rows[0].id;
+    } else {
+      const insertResult = await client.query(
+        `INSERT INTO ${table} (${column}) VALUES ($1) RETURNING id`,
+        [value]
+      );
+      id = insertResult.rows[0].id;
+    }
+
+    await client.end();
+    return id;
+  });
+
+  return cachedValue;
+}
+
+async function fetchFromCache(key, fetchFromDB) {
+  // Check if the value exists in the KV store
+  const cachedValue = await kv.get(key);
+  if (cachedValue) {
+    return cachedValue;
   }
+
+  // Value not found in KV, fetch from the database
+  const dbValue = await fetchFromDB();
+
+  // If the value exists in the database, store it in KV
+  if (dbValue) {
+    await kv.set(key, dbValue);
+  }
+
+  return dbValue;
 }
 
 function stripLeadingSlash(str) {
@@ -113,4 +147,5 @@ module.exports = {
   logRedirect,
   saveUrl,
   stripLeadingSlash,
+  fetchFromCache,
 };
