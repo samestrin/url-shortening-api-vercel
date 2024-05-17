@@ -1,13 +1,16 @@
 const { VercelRequest, VercelResponse } = require("@vercel/node");
 const { config: loadEnvConfig } = require("dotenv");
 loadEnvConfig();
-const { kv } = require("@vercel/kv");
-const { logRedirect, stripLeadingSlash } = require("../utils/index.js");
+const { Client } = require("pg");
+const {
+  logRedirect,
+  stripLeadingSlash,
+  fetchFromCache,
+} = require("../utils/index.js");
 
 export async function GET(req) {
   try {
-    // Parse the URL from the request
-    const requestUrl = new URL(req.url, `http://${req.headers.host}`);
+    const requestUrl = new URL(req.url, `http://`);
     const pathname = requestUrl.pathname;
     const shortId = stripLeadingSlash(pathname);
 
@@ -17,7 +20,22 @@ export async function GET(req) {
       });
     }
 
-    const longUrl = await kv.get(`url:${shortId}`);
+    const longUrl = await fetchFromCache(`url:${shortId}`, async () => {
+      const client = new Client({
+        connectionString: process.env.POSTGRES_URL,
+        ssl: { rejectUnauthorized: false },
+      });
+      await client.connect();
+
+      const result = await client.query(
+        "SELECT long_url FROM urls WHERE short_url = $1",
+        [shortId]
+      );
+
+      await client.end();
+
+      return result.rows.length > 0 ? result.rows[0].long_url : null;
+    });
 
     if (!longUrl) {
       return new Response(JSON.stringify({ error: "URL not found" }), {
