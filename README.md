@@ -60,7 +60,7 @@ Create your Postgres database.
 
 Run the SQL script to create necessary tables and insert initial data using the Vercel Storage interface.
 
-4.  **Set Up KV (Redis) **
+4.  **Set Up KV (Redis)**
 
 Create your KV database.
 
