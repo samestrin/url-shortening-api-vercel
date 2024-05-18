@@ -24,7 +24,7 @@ _This replaces the legacy [url-shortening-api-netlify-edge-supabase](https://git
 - **Node.js**: JavaScript runtime environment
 - **Vercel**: Hosting platform for serverless functions
 - **PostgreSQL (Vercel Postgres)**: Relational database for storing URL data
-- \*\*Redis (Vercel KV): Key-Value store for caching
+- **Redis (Vercel KV)**: Key-Value store for caching
 - **formidable**: Library for parsing form data
 - **valid-url**: Utility for URL validation
 - **dotenv**: Environment variable management
@@ -48,7 +48,17 @@ cd url-shortening-api-vercel
 npm install
 ```
 
-3.  **Configure Environment Variables**
+3.  **Set Up PostgreSQL Database**
+
+Create your Postgres database.
+
+Run the SQL script to create necessary tables and insert initial data using the Vercel Storage interface.
+
+4.  **Set Up KV (Redis) **
+
+Create your KV database.
+
+5.  **Configure Environment Variables**
 
 Create a `**.env**` file in the root directory and add the following variables:
 
@@ -62,11 +72,7 @@ URLSHORT_RESOLVE_HOSTNAME=true_or_false URLSHORT_DEFAULT_IP_ADDRESS_ID=default_i
 URLSHORT_DEFAULT_USER_ID=default_user_id
 ```
 
-4.  **Set Up PostgreSQL Database**
-
-Run the SQL script to create necessary tables and insert initial data.
-
-5.  **Deploy to Vercel**
+6.  **Deploy to Vercel**
 
 ```bash
 vercel deploy
