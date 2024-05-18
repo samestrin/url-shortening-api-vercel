@@ -5,15 +5,11 @@
       "maxDuration": 10
     }
   },
-  {
-    "redirects": [
-      { "source": "/", "destination": "https://frwrd.ing", "permanent": true }
-    ]
-  },
   "routes": [
     {
-      "src": "/index.html",
-      "dest": "/"
+      "src": "/",
+      "status": 302,
+      "headers": { "Location": "https://frwrd.ing/" }
     },
     {
       "src": "/count",
