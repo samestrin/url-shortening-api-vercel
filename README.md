@@ -10,6 +10,8 @@ url-shortening-api-vercel is a URL shortener service. It is a serverless applica
 
 This project now uses Vercel because they are a single provider for all project infrastructure needs, including Vercel Functions, Vercel KV (Redis), and Vercel Postgres. Migrating to Vercel has reduced latency caused by historical Netlify/Supabase interactions and allowed for using Vercel KV (Redis) as a caching layer.
 
+_However, moving from Netlify Edge Functions to Vercel Functions reduced the number of function executions to 100k/month._
+
 _This replaces the legacy [url-shortening-api-netlify-edge-supabase](https://github.com/samestrin/url-shortening-api-netlify-edge-supabase) project due to a number of performance improvements._
 
 ## Features
