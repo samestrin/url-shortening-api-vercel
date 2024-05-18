@@ -2,7 +2,7 @@
 
 [![Star on GitHub](https://img.shields.io/github/stars/samestrin/url-shortening-api-vercel?style=social)](https://github.com/samestrin/url-shortening-api-vercel/stargazers)[![Fork on GitHub](https://img.shields.io/github/forks/samestrin/url-shortening-api-vercel?style=social)](https://github.com/samestrin/url-shortening-api-vercel/network/members)[![Watch on GitHub](https://img.shields.io/github/watchers/samestrin/url-shortening-api-vercel?style=social)](https://github.com/samestrin/url-shortening-api-vercel/watchers)
 
-![Version 0.0.1](https://img.shields.io/badge/Version-0.0.1-blue)[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)[![Built with Node.js](https://img.shields.io/badge/Built%20with-Node.js-green)](https://nodejs.org/)
+![Version 0.0.2](https://img.shields.io/badge/Version-0.0.2-blue)[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)[![Built with Node.js](https://img.shields.io/badge/Built%20with-Node.js-green)](https://nodejs.org/)
 
 url-shortening-api-vercel is a URL shortener service. It is a serverless application that provides URL shortening and retrieval functionalities. Utilizing the Vercel infrastructure - Vercel Functions, Vercel KV (Redis), and Vercel Postgres, the application offers a high performance, efficient and scalable solution for creating, serving, and tracking short URLs that redirect to the original, longer URLs.
 
@@ -180,7 +180,7 @@ The server responds with:
 ```bash
 {
     "name": "url-shortening-api-vercel",
-    "version": "0.0.1",
+    "version": "0.0.2",
     "description": "url-shortening-api-vercel is a URL shortener service using the Vercel infrastructure - Vercel Functions, Vercel KV (Redis), and Vercel Postgres.",
     "author": "Sam Estrin",
     "homepage": "https://github.com/samestrin/url-shortening-api-vercel#readme"
