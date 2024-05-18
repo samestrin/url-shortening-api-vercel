@@ -1,17 +1,38 @@
 {
   "version": 2,
   "functions": {
-    "api/shorten.js": {
-      "maxDuration": 60
-    },
-    "api/redirect.js": {
-      "maxDuration": 60
+    "api/*.js": {
+      "maxDuration": 10
     }
   },
   "routes": [
     {
+      "src": "/assets/(.*)",
+      "dest": "/demo/assets/$1"
+    },
+    {
+      "src": "/assets/(.*)/(.*)",
+      "dest": "/demo/assets/$1/$2"
+    },
+    {
+      "src": "/",
+      "dest": "/demo/index.html"
+    },
+    {
+      "src": "/count",
+      "dest": "/api/count.js"
+    },
+    {
+      "src": "/latest",
+      "dest": "/api/latest.js"
+    },
+    {
       "src": "/shorten",
       "dest": "/api/shorten.js"
+    },
+    {
+      "src": "/version",
+      "dest": "/api/version.js"
     },
     {
       "src": "/(.*)",
