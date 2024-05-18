@@ -32,13 +32,11 @@ async function handler(req, res) {
     });
     await client.connect();
 
-    const result = await client.query(
-      "SELECT COUNT(*) AS url_count as count FROM urls"
-    );
+    const result = await client.query("SELECT COUNT(*) AS url_count FROM urls");
     await client.end();
 
     res.setHeader("Content-Type", "application/json");
-    res.status(200).json(result.rows[0]);
+    res.status(200).json({ count: result.rows[0].url_count });
   } catch (error) {
     console.error("Error querying database:", error);
     res.status(500).json({
