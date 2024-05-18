@@ -32,7 +32,9 @@ async function handler(req, res) {
     });
     await client.connect();
 
-    const result = await client.query("SELECT COUNT(*) AS url_count FROM urls");
+    const result = await client.query(
+      "SELECT COUNT(*) AS url_count as count FROM urls"
+    );
     await client.end();
 
     res.setHeader("Content-Type", "application/json");
