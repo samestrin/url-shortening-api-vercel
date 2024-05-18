@@ -1,6 +1,7 @@
 const { IncomingForm } = require("formidable");
 const { config: loadEnvConfig } = require("dotenv");
-const validUrl = require("valid-url"); // Add this line
+const validUrl = require("valid-url");
+const querystring = require("querystring");
 loadEnvConfig();
 const { kv } = require("@vercel/kv");
 const {
@@ -11,6 +12,36 @@ const {
 
 const defaultUserId = Number(process.env.URLSHORT_DEFAULT_USER_ID) || 1;
 const urlBase = process.env.URLSHORT_URL_BASE || "/";
+
+/**
+ * Handles the URL shortening process.
+ *
+ * @param {string} url - The long URL to be shortened.
+ * @returns {Promise<string>} The shortened URL.
+ * @throws {Error} If there's an issue processing the request or saving the URL.
+ */
+async function handleUrlShortening(url) {
+  // Check the cache for an existing short URL
+  let shortUrl = await kv.get(`longUrl:${url}`);
+  if (!shortUrl) {
+    // Check the database for an existing short URL
+    const existingUrl = await getUrlByLongUrl(url);
+    if (existingUrl) {
+      shortUrl = `${urlBase}${existingUrl.short_url}`;
+    } else {
+      // Generate a new short URL if none exists
+      const shortId = generateShortId();
+      shortUrl = `${urlBase}${shortId}`;
+      await kv.set(`url:${shortId}`, url, { nx: true });
+      await kv.set(`longUrl:${url}`, shortId, { nx: true });
+      await saveUrl(shortId, url, defaultUserId);
+    }
+  } else {
+    shortUrl = `${urlBase}${shortUrl}`;
+  }
+
+  return shortUrl;
+}
 
 /**
  * Handles the shorten endpoint to create a new short URL for a given long URL.
@@ -54,25 +85,33 @@ async function handler(req, res) {
       }
 
       try {
-        // Check the cache for an existing short URL
-        let shortUrl = await kv.get(`longUrl:${url}`);
-        if (!shortUrl) {
-          // Check the database for an existing short URL
-          const existingUrl = await getUrlByLongUrl(url);
-          if (existingUrl) {
-            shortUrl = `${urlBase}${existingUrl.short_url}`;
-          } else {
-            // Generate a new short URL if none exists
-            const shortId = generateShortId();
-            shortUrl = `${urlBase}${shortId}`;
-            await kv.set(`url:${shortId}`, url, { nx: true });
-            await kv.set(`longUrl:${url}`, shortId, { nx: true });
-            await saveUrl(shortId, url, defaultUserId);
-          }
-        } else {
-          shortUrl = `${urlBase}${shortUrl}`;
-        }
+        const shortUrl = await handleUrlShortening(url);
+        return res.status(200).json({ shortUrl });
+      } catch (error) {
+        console.error("Error saving URL:", error);
+        return res.status(500).json({ error: "Internal server error" });
+      }
+    });
+  } else if (
+    contentType &&
+    contentType.includes("application/x-www-form-urlencoded")
+  ) {
+    let body = "";
+    req.on("data", (chunk) => {
+      body += chunk.toString();
+    });
 
+    req.on("end", async () => {
+      const fields = querystring.parse(body);
+      const url = fields.url;
+
+      // URL validation
+      if (!url || !validUrl.isUri(url)) {
+        return res.status(400).json({ error: "Invalid URL" });
+      }
+
+      try {
+        const shortUrl = await handleUrlShortening(url);
         return res.status(200).json({ shortUrl });
       } catch (error) {
         console.error("Error saving URL:", error);
