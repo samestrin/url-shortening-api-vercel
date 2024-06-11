@@ -52,6 +52,8 @@ async function handleUrlShortening(url) {
  * @throws {Error} If there's an issue processing the request or saving the URL.
  */
 async function handler(req, res) {
+  const startTime = process.hrtime();
+
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader(
     "Access-Control-Allow-Methods",
@@ -86,7 +88,13 @@ async function handler(req, res) {
 
       try {
         const shortUrl = await handleUrlShortening(url);
-        return res.status(200).json({ shortUrl });
+
+        const endTime = process.hrtime(startTime);
+        const runTime = endTime[0] * 1000 + endTime[1] / 1e6; // Convert to milliseconds
+
+        return res
+          .status(200)
+          .json({ shortUrl, runtime: `${runTime.toFixed(2)}ms` });
       } catch (error) {
         console.error("Error saving URL:", error);
         return res.status(500).json({ error: "Internal server error" });
@@ -112,7 +120,13 @@ async function handler(req, res) {
 
       try {
         const shortUrl = await handleUrlShortening(url);
-        return res.status(200).json({ shortUrl });
+
+        const endTime = process.hrtime(startTime);
+        const runTime = endTime[0] * 1000 + endTime[1] / 1e6; // Convert to milliseconds
+
+        return res
+          .status(200)
+          .json({ shortUrl, runtime: `${runTime.toFixed(2)}ms` });
       } catch (error) {
         console.error("Error saving URL:", error);
         return res.status(500).json({ error: "Internal server error" });
